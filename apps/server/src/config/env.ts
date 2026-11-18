@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-const ttl = z.string().regex(/^\d+[smhd]$/, '格式如 15m、2h、7d');
+type Ttl = `${number}${'s' | 'm' | 'h' | 'd'}`;
+const ttl = z
+  .string()
+  .regex(/^\d+[smhd]$/, '格式如 15m、2h、7d')
+  .transform((v) => v as Ttl);
 
 export const envSchema = z
   .object({

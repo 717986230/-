@@ -3,3 +3,10 @@ packages:
   - "apps/mobile"
   - "packages/*"
 # apps/admin 为基于 vue-pure-admin 的运营后台，保留其独立的依赖与 lockfile，单独安装
+
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - prisma
+  - esbuild
+  - "@nestjs/core"
