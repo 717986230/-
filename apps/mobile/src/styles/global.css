@@ -1,0 +1,40 @@
+:root {
+  --brand: #07c160;
+  --brand-dark: #06ad56;
+  --bg: #f6f6f6;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --text-2: #6b6b6b;
+  --line: #ececec;
+  --van-primary-color: var(--brand);
+  --van-tabbar-item-active-color: var(--brand);
+  --van-tabs-bottom-bar-color: var(--brand);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+#app {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(60px + var(--safe-bottom));
+}

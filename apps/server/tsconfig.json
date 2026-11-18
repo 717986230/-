@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "outDir": "dist",
+    "baseUrl": "./",
+    "strictPropertyInitialization": false,
+    "incremental": false,
+    "declaration": false,
+    "types": ["node", "jest"]
+  },
+  "include": ["src", "test", "prisma"]
+}

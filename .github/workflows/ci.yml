@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apps:
+    name: 共享包 / 服务端 / 移动端
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: moments
+          POSTGRES_PASSWORD: moments
+          POSTGRES_DB: moments_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U moments" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://moments:moments@localhost:5432/moments_test?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: 共享包：构建与单测
+        run: pnpm --filter @moments/shared build && pnpm --filter @moments/shared test
+      - name: 服务端：类型检查、单测、e2e
+        working-directory: apps/server
+        run: |
+          pnpm exec prisma generate
+          pnpm exec prisma migrate deploy
+          pnpm typecheck
+          pnpm test
+          pnpm test:e2e
+          pnpm build
+      - name: 移动端：类型检查与构建
+        run: pnpm --filter @moments/mobile build
+
+  admin:
+    name: 运营后台（vue-pure-admin）
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      # 后台保留原模板的独立依赖（pnpm 8），不加入根 workspace；
+      # 根目录 packageManager 指定 pnpm 10，这里直接用 npx 调用 pnpm 8 避免冲突
+      - run: npx -y pnpm@8 install --ignore-workspace --no-frozen-lockfile
+      - run: npx -y pnpm@8 typecheck

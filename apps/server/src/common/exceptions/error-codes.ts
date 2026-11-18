@@ -1,0 +1,22 @@
+/** 业务错误码：0 成功；4xxxx 客户端错误；5xxxx 服务端错误。前端按 code 做分支，不依赖 message 文案 */
+export const ErrorCode = {
+  OK: 0,
+  BAD_REQUEST: 40000,
+  VALIDATION_FAILED: 40001,
+  UNAUTHORIZED: 40100,
+  TOKEN_EXPIRED: 40101,
+  INVALID_CREDENTIALS: 40102,
+  FORBIDDEN: 40300,
+  NOT_FOUND: 40400,
+  TEMPLATE_NOT_FOUND: 40401,
+  WORK_NOT_FOUND: 40402,
+  CONFLICT: 40900,
+  USERNAME_TAKEN: 40901,
+  TEMPLATE_CODE_TAKEN: 40902,
+  PAYLOAD_TOO_LARGE: 41300,
+  UNSUPPORTED_MEDIA: 41500,
+  TOO_MANY_REQUESTS: 42900,
+  INTERNAL: 50000,
+} as const;
+
+export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];
