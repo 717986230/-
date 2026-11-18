@@ -98,3 +98,29 @@ export function gridSlots(rows: number, cols: number) {
   }
   return slots;
 }
+
+/**
+ * 拖动平移：把目标区域上的像素位移（dx, dy）换算为新的 offset。
+ * 手指向右拖，画面跟着向右移动，即源矩形向左移动。
+ */
+export function panTransform(
+  image: { width: number; height: number },
+  target: { w: number; h: number },
+  transform: PhotoTransform,
+  dx: number,
+  dy: number,
+): PhotoTransform {
+  const src = coverSourceRect(image, target, transform);
+  const freeX = image.width - src.w;
+  const freeY = image.height - src.h;
+  const next = { ...transform };
+  if (freeX > 0) next.offsetX = clamp(transform.offsetX - ((dx * src.w) / target.w) / (freeX / 2), -1, 1);
+  if (freeY > 0) next.offsetY = clamp(transform.offsetY - ((dy * src.h) / target.h) / (freeY / 2), -1, 1);
+  return next;
+}
+
+export const MAX_SCALE = 4;
+
+export function zoomTransform(transform: PhotoTransform, scale: number): PhotoTransform {
+  return { ...transform, scale: clamp(scale, 1, MAX_SCALE) };
+}

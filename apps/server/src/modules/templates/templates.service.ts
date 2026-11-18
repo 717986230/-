@@ -1,5 +1,5 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { photoCountOf } from '@moments/shared';
+import { HttpStatus, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { PRESET_TEMPLATES, photoCountOf } from '@moments/shared';
 import { Prisma } from '@prisma/client';
 import { BusinessException } from '../../common/exceptions/business.exception';
 import { ErrorCode } from '../../common/exceptions/error-codes';
@@ -7,8 +7,29 @@ import { PrismaService } from '../../prisma/prisma.service';
 import type { AdminListTemplatesQuery, CreateTemplateDto, UpdateTemplateDto } from './dto/template.dto';
 
 @Injectable()
-export class TemplatesService {
+export class TemplatesService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(TemplatesService.name);
+
   constructor(private readonly prisma: PrismaService) {}
+
+  /** 空库首次启动时写入内置模板；之后完全由运营后台管理，不会覆盖人工调整 */
+  async onApplicationBootstrap() {
+    if ((await this.prisma.template.count()) > 0) return;
+    await this.prisma.template.createMany({
+      data: PRESET_TEMPLATES.map((p) => ({
+        code: p.code,
+        name: p.name,
+        category: p.category,
+        kind: p.definition.kind,
+        photoCount: photoCountOf(p.definition),
+        sort: p.sort,
+        status: 'published' as const,
+        definition: p.definition as unknown as Prisma.InputJsonValue,
+      })),
+      skipDuplicates: true,
+    });
+    this.logger.log(`已初始化 ${PRESET_TEMPLATES.length} 个内置模板`);
+  }
 
   /** C 端：只返回已上架模板 */
   listPublished(category?: string) {

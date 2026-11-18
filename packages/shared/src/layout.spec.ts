@@ -90,3 +90,27 @@ describe('validateDefinition', () => {
     expect(validateDefinition(null)).toEqual(['definition 必须是对象']);
   });
 });
+
+import { panTransform, zoomTransform } from './layout';
+
+describe('panTransform', () => {
+  const image = { width: 2000, height: 1000 };
+  const target = { w: 100, h: 100 };
+
+  it('向右拖动画面，源矩形向左移动', () => {
+    const t = panTransform(image, target, { scale: 1, offsetX: 0, offsetY: 0 }, 10, 0);
+    // 源矩形 1000px 对应 100px，拖 10px = 源 100px；可移动范围半宽 500px
+    expect(t.offsetX).toBeCloseTo(-0.2);
+    expect(t.offsetY).toBe(0); // 纵向没有可移动空间
+  });
+
+  it('偏移被限制在 -1~1', () => {
+    const t = panTransform(image, target, { scale: 1, offsetX: 0, offsetY: 0 }, 1000, 0);
+    expect(t.offsetX).toBe(-1);
+  });
+
+  it('zoomTransform 限制缩放范围', () => {
+    expect(zoomTransform({ scale: 1, offsetX: 0, offsetY: 0 }, 10).scale).toBe(4);
+    expect(zoomTransform({ scale: 2, offsetX: 0, offsetY: 0 }, 0.3).scale).toBe(1);
+  });
+});

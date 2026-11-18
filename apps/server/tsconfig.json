@@ -9,7 +9,8 @@
     "outDir": "dist",
     "baseUrl": "./",
     "strictPropertyInitialization": false,
-    "incremental": true,
+    "incremental": false,
+    "declaration": false,
     "types": ["node", "jest"]
   },
   "include": ["src", "test", "prisma"]
