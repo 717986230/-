@@ -24,3 +24,4 @@ coverage
 apps/server/uploads
 .env.local
 apps/server/.env
+*.tsbuildinfo
