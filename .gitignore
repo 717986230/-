@@ -19,3 +19,8 @@ tests/**/coverage/
 *.njsproj
 *.sln
 tsconfig.tsbuildinfo
+# monorepo
+coverage
+apps/server/uploads
+.env.local
+apps/server/.env

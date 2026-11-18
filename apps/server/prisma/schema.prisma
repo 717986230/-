@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TemplateStatus {
+  draft
+  published
+  archived
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique @db.VarChar(32)
+  passwordHash String
+  nickname     String   @db.VarChar(32)
+  role         Role     @default(USER)
+  /// 递增后使已签发的 refresh token 失效（用于登出、改密）
+  tokenVersion Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  works        Work[]
+
+  @@map("users")
+}
+
+model Template {
+  id         String         @id @default(cuid())
+  code       String         @unique @db.VarChar(64)
+  name       String         @db.VarChar(64)
+  /// grid | collage | split | frame
+  category   String         @db.VarChar(32)
+  /// layout | split
+  kind       String         @db.VarChar(16)
+  photoCount Int
+  sort       Int            @default(0)
+  status     TemplateStatus @default(draft)
+  /// 模板定义，结构见 @moments/shared 的 TemplateDefinition
+  definition Json
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  works      Work[]
+
+  @@index([status, category, sort])
+  @@map("templates")
+}
+
+model Work {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId String?
+  template   Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  title      String    @db.VarChar(64)
+  /// 导出的图片列表 [{ key, url, width, height, size }]
+  files      Json
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@map("works")
+}
