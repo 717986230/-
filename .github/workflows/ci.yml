@@ -55,12 +55,10 @@ jobs:
         working-directory: apps/admin
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      # 后台保留原模板的独立依赖，不加入根 workspace
-      - run: pnpm install --ignore-workspace --no-frozen-lockfile
-      - run: pnpm typecheck
+      # 后台保留原模板的独立依赖（pnpm 8），不加入根 workspace；
+      # 根目录 packageManager 指定 pnpm 10，这里直接用 npx 调用 pnpm 8 避免冲突
+      - run: npx -y pnpm@8 install --ignore-workspace --no-frozen-lockfile
+      - run: npx -y pnpm@8 typecheck
